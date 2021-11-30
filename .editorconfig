@@ -1,0 +1,16 @@
+[*]
+ij_smart_tabs = false
+ij_visual_guides = none
+ij_wrap_on_typing = true
+
+[{*.go,*.go2}]
+ij_go_GROUP_CURRENT_PROJECT_IMPORTS = true
+ij_go_add_leading_space_to_comments = true
+ij_go_call_parameters_wrap = on_every_item
+ij_go_group_stdlib_imports = true
+ij_go_import_sorting = goimports
+ij_go_move_all_stdlib_imports_in_one_group = true
+ij_go_remove_redundant_import_aliases = true
+ij_go_wrap_comp_lit = on_every_item
+ij_go_wrap_func_params = on_every_item
+ij_go_wrap_func_result = on_every_item
