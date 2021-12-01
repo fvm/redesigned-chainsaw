@@ -2,6 +2,48 @@ package day01
 
 import "testing"
 
+func BenchmarkAll(b *testing.B) {
+	benchmarks := []struct {
+		name string
+		f    func([]int) (int, error)
+	}{
+		{name: "partOne", f: solvePartOne},
+		{name: "partTwo", f: solvePartTwo},
+	}
+	data, err := ReadInput("input")
+	if err != nil {
+		b.Error(err)
+	}
+	for _, bm := range benchmarks {
+		b.Run(
+			bm.name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					_, _ = bm.f(data)
+				}
+			},
+		)
+	}
+}
+
+func BenchmarkSolvePartOne(b *testing.B) {
+	data, err := ReadInput("input")
+	if err != nil {
+		b.Error(err)
+	}
+	for i := 0; i < b.N; i++ {
+		_, _ = solvePartOne(data)
+	}
+}
+func BenchmarkSolvePartTwo(b *testing.B) {
+	data, err := ReadInput("input")
+	if err != nil {
+		b.Error(err)
+	}
+	for i := 0; i < b.N; i++ {
+		_, _ = solvePartTwo(data)
+	}
+}
+
 func TestCountIncrements(t *testing.T) {
 	type args struct {
 		values []int
