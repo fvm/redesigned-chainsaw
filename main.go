@@ -1,29 +1,26 @@
 package main
 
 import (
-	"log"
-
-	"gitlab.com/frankvanmeurs/redesigned-chainsaw/day00"
-	"gitlab.com/frankvanmeurs/redesigned-chainsaw/ninetynine"
+	"gitlab.com/frankvanmeurs/redesigned-chainsaw/day01"
+	"go.uber.org/zap"
 )
 
+var logger *zap.Logger
+
 func main() {
-	var problemForToday ninetynine.Problem
-
-	var solutionForToday ninetynine.Solution
-
-	solverForToday := day00.Solver()
-	problemForToday = solverForToday.Problem()
-
-	_, err := problemForToday.Write([]byte{})
+	var err error
+	logger, err = zap.NewDevelopment()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
+	zap.ReplaceGlobals(logger)
 
-	solutionForToday, err = solverForToday.Solve(problemForToday)
+	defer func(logger *zap.Logger) {
+		_ = logger.Sync()
+	}(logger)
+
+	err = day01.Solve()
 	if err != nil {
-		log.Fatalln(err)
+		logger.Error("Something went wrong while solving day one", zap.Error(err))
 	}
-
-	log.Print(solutionForToday)
 }
