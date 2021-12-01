@@ -1,4 +1,4 @@
-# redesigned-chainsaw
+# Redesigned Chainsaw
 
 Advent of Code 2021
 
