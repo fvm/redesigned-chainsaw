@@ -10,10 +10,12 @@ func BenchmarkAll(b *testing.B) {
 		{name: "partOne", f: solvePartOne},
 		{name: "partTwo", f: solvePartTwo},
 	}
+
 	data, err := ReadInput("input")
 	if err != nil {
 		b.Error(err)
 	}
+
 	for _, bm := range benchmarks {
 		b.Run(
 			bm.name, func(b *testing.B) {
@@ -30,6 +32,7 @@ func BenchmarkSolvePartOne(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
+
 	for i := 0; i < b.N; i++ {
 		_, _ = solvePartOne(data)
 	}
@@ -39,6 +42,7 @@ func BenchmarkSolvePartTwo(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
+
 	for i := 0; i < b.N; i++ {
 		_, _ = solvePartTwo(data)
 	}
@@ -48,6 +52,7 @@ func TestCountIncrements(t *testing.T) {
 	type args struct {
 		values []int
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -63,6 +68,7 @@ func TestCountIncrements(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
@@ -84,6 +90,7 @@ func TestCountSubsliceIncrements(t *testing.T) {
 		input      []int
 		windowsize int
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -109,6 +116,7 @@ func TestCountSubsliceIncrements(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {

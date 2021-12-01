@@ -9,10 +9,12 @@ var logger *zap.Logger
 
 func main() {
 	var err error
+
 	logger, err = zap.NewDevelopment()
 	if err != nil {
 		panic(err)
 	}
+
 	zap.ReplaceGlobals(logger)
 
 	defer func(logger *zap.Logger) {
