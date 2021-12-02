@@ -66,11 +66,11 @@ func solvePartTwo(input []int) (int, error) {
 }
 
 func CountSubsliceIncrements(input []int, windowsize int) (int, error) {
-	var increments = 0
-
 	if len(input) < windowsize {
 		return 0, errors.Errorf("Window size (%d) exceeds input length (%d)", windowsize, len(input))
 	}
+
+	var increments = 0
 
 	for i := len(input) - windowsize; i > 0; i-- {
 		offset := i + windowsize
@@ -85,7 +85,8 @@ func CountSubsliceIncrements(input []int, windowsize int) (int, error) {
 	return increments, nil
 }
 
-func intsSum(values []int) (n int) {
+func intsSum(values []int) int {
+	var n = 0
 	for _, v := range values {
 		n += v
 	}

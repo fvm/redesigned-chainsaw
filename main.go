@@ -2,6 +2,7 @@ package main
 
 import (
 	"gitlab.com/frankvanmeurs/redesigned-chainsaw/day01"
+	"gitlab.com/frankvanmeurs/redesigned-chainsaw/day02"
 	"go.uber.org/zap"
 )
 
@@ -24,5 +25,10 @@ func main() {
 	err = day01.Solve()
 	if err != nil {
 		logger.Error("Something went wrong while solving day one", zap.Error(err))
+	}
+
+	err = day02.Solve()
+	if err != nil {
+		logger.Error("Something went wrong while solving day two", zap.Error(err))
 	}
 }
