@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -19,7 +18,6 @@ func Solve() error {
 
 	data, err := readInput("day02/input")
 	if err != nil {
-		spew.Dump("poep")
 		return err
 	}
 	solutionPartOne, err := solvePartOne(data)
@@ -56,7 +54,7 @@ func solvePartOne(displacements []displacement) (int, error) {
 		case "forward":
 			v += d.distance
 		default:
-			return 0, errors.Errorf("WTF you went %s", d.direction)
+			return 0, errors.Errorf("WTF you went %s!", d.direction)
 		}
 	}
 	return h * v, nil
@@ -74,7 +72,7 @@ func solvePartTwo(displacements []displacement) (int, error) {
 			v += d.distance
 			h += d.distance * a
 		default:
-			return 0, errors.Errorf("WTF you went %s", d.direction)
+			return 0, errors.Errorf("WTF you went %s!", d.direction)
 		}
 	}
 	return h * v, nil
@@ -91,20 +89,19 @@ func readInput(fname string) ([]displacement, error) {
 			zap.L().Error("Error closing file", zap.String("name", fptr.Name()), zap.Error(err))
 		}
 	}(fptr)
+	// We know the file is 1000 lines
 	ds := make([]displacement, 1000)
 	s := bufio.NewScanner(fptr)
 	s.Split(bufio.ScanLines)
 	var i uint16
 	for s.Scan() {
-		d := displacement{}
-		n, err := fmt.Sscanf(s.Text(), "%s\t%d\n", &d.direction, &d.distance)
+		n, err := fmt.Sscanf(s.Text(), "%s\t%d\n", &ds[i].direction, &ds[i].distance)
 		if err != nil {
 			return ds, err
 		}
 		if n != 2 {
 			return ds, errors.Errorf("Somehow read %d inputs while scanning an input line... Qeu le fucque?", n)
 		}
-		ds[i] = d
 		i++
 	}
 	return ds, nil

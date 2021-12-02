@@ -59,12 +59,12 @@ func TestCountIncrements(t *testing.T) {
 		want    int
 		wantErr bool
 	}{
-		{name: testing.CoverMode(), args: args{values: []int{1, 1, 2, 2}}, want: 1, wantErr: false},
-		{name: testing.CoverMode(), args: args{values: []int{1, 1, 1, 1, 1}}, want: 0, wantErr: false},
-		{name: testing.CoverMode(), args: args{values: []int{0, -1, -2, -3, -4}}, want: 0, wantErr: false},
-		{name: testing.CoverMode(), args: args{values: []int{0, 1, 2, 3, 4}}, want: 4, wantErr: false},
+		{name: t.Name(), args: args{values: []int{1, 1, 2, 2}}, want: 1, wantErr: false},
+		{name: t.Name(), args: args{values: []int{1, 1, 1, 1, 1}}, want: 0, wantErr: false},
+		{name: t.Name(), args: args{values: []int{0, -1, -2, -3, -4}}, want: 0, wantErr: false},
+		{name: t.Name(), args: args{values: []int{0, 1, 2, 3, 4}}, want: 4, wantErr: false},
 		{
-			name: testing.CoverMode(), args: args{values: []int{199, 200, 208, 210, 200, 207, 240, 269, 260, 263}}, want: 7,
+			name: t.Name(), args: args{values: []int{199, 200, 208, 210, 200, 207, 240, 269, 260, 263}}, want: 7,
 			wantErr: false,
 		},
 	}
@@ -98,7 +98,7 @@ func TestCountSubsliceIncrements(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: testing.CoverMode(),
+			name: t.Name(),
 			args: args{
 				input:      nil,
 				windowsize: 0,
@@ -107,7 +107,7 @@ func TestCountSubsliceIncrements(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: testing.CoverMode(),
+			name: t.Name(),
 			args: args{
 				input:      []int{199, 200, 208, 210, 200, 207, 240, 269, 260, 263},
 				windowsize: 3,

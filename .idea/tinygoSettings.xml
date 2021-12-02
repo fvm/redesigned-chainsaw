@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="TinyGoPlugin">
+    <option name="gc" value="conservative" />
+    <option name="goArch" value="arm" />
+    <option name="goOS" value="linux" />
+    <option name="goTags" value="avr baremetal linux arm atmega328p atmega avr5 arduino tinygo math_big_pure_go gc.conservative scheduler.none serial.uart" />
+    <option name="scheduler" value="none" />
+    <option name="targetPlatform" value="arduino" />
+  </component>
+</project>

@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="Go" enabled="true" />
+  <component name="Go" enabled="true">
+    <buildTags>
+      <option name="os" value="linux" />
+      <option name="arch" value="arm" />
+      <option name="customFlags">
+        <array>
+          <option value="avr" />
+          <option value="baremetal" />
+          <option value="linux" />
+          <option value="arm" />
+          <option value="atmega328p" />
+          <option value="atmega" />
+          <option value="avr5" />
+          <option value="arduino" />
+          <option value="tinygo" />
+          <option value="math_big_pure_go" />
+          <option value="gc.conservative" />
+          <option value="scheduler.none" />
+          <option value="serial.uart" />
+        </array>
+      </option>
+    </buildTags>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
