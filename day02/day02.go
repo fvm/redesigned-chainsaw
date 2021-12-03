@@ -20,26 +20,31 @@ func Solve() error {
 	if err != nil {
 		return err
 	}
+
 	solutionPartOne, err := solvePartOne(data)
 	if err != nil {
 		return err
 	}
+
 	zap.L().Info(
 		"Solution",
 		zap.Int("Day", 2),
 		zap.Int("Part", 1),
 		zap.Int("Solution (increments)", solutionPartOne),
 	)
+
 	solutionPartTwo, err := solvePartTwo(data)
 	if err != nil {
 		return err
 	}
+
 	zap.L().Info(
 		"Solution",
 		zap.Int("Day", 2),
 		zap.Int("Part", 2),
 		zap.Int("Solution (increments)", solutionPartTwo),
 	)
+
 	return nil
 }
 

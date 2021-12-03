@@ -2,7 +2,7 @@ package day02
 
 import "testing"
 
-func BenchmarkAll(b *testing.B) {
+func BenchmarkAllDay02(b *testing.B) {
 	benchmarks := []struct {
 		name string
 		f    func([]displacement) (int, error)
