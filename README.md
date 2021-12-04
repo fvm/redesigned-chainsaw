@@ -27,3 +27,12 @@ I've learned yesterday's lesson, for now.
 The mention of bits was a huge red herring and flipping strings was the easiest. Not having a reduce function also was a
 bit of a pain in the ass and probably something worth learning. Having to drop slices ends up triggering the garbage
 collector quite often.
+
+## Day 04
+
+Coming up with the data structures for easy access took quite a bit of figuring out. As well as how the `Reader` in
+the `encoding/csv` package works. Also learned that you can't change `bufio.Split` functions after using it to
+`bufio.Scan()`. Still haven't figured out if it's possible to get a new scanner at the position where you left the
+other, but this worked.
+
+Also, realising that more boards can win per roun/d.
