@@ -116,6 +116,13 @@ func readInput(fname string) ([]string, error) {
 	if err != nil {
 		return out, err
 	}
+	defer func(fptr *os.File) {
+		err := fptr.Close()
+		if err != nil {
+			// 	Whups
+			zap.L().Error("Error closing file", zap.Error(err))
+		}
+	}(fptr)
 
 	s := bufio.NewScanner(fptr)
 	s.Split(bufio.ScanLines)
