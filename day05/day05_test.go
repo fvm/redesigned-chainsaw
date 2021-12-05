@@ -10,7 +10,31 @@ import (
 	"testing"
 )
 
-func BenchmarkDrawLines(b *testing.B) {
+func BenchmarkDrawManhattanLines(b *testing.B) {
+	manhattanLines, err := readAndParseInputFile("input")
+	if err != nil {
+		b.Errorf("Bench the fuck out of here motherbucker! %s", err)
+	}
+
+	benchmarks := []struct {
+		name   string
+		lines  []ManhattanLine
+		canvas *Canvas
+		f      func()
+	}{
+		{name: "Manhattan", lines: manhattanLines, canvas: newCanvas(1000)},
+	}
+	for _, bm := range benchmarks {
+		b.Run(
+			bm.name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					_ = bm.canvas.drawManhattanLines(bm.lines)
+				}
+			},
+		)
+	}
+}
+func BenchmarkDrawManhattanishLines(b *testing.B) {
 	manhattanLines, err := readAndParseInputFile("input")
 	if err != nil {
 		b.Errorf("Bench the fuck out of here motherbucker! %s", err)
