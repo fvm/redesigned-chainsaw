@@ -36,3 +36,8 @@ the `encoding/csv` package works. Also learned that you can't change `bufio.Spli
 other, but this worked.
 
 Also, realising that more boards can win per roun/d.
+
+## Day 05
+
+Probably could have tested for validity of the lines better. Reused functions from the get-go. 2D-Slice indices are
+tricky. Test your assumptions on the meaning of 'diagonal'
