@@ -15,10 +15,8 @@ import (
 )
 
 type ManhattanLine struct {
-	ish     bool
-	Points  []image.Point `json:"points,omitempty" yaml:"points"`
-	XValues []int         `json:"x_values,omitempty" yaml:"x_values"` // Easy access while we're dealing with horizontal and vertical lines
-	YValues []int         `json:"y_values,omitempty" yaml:"y_values"` // see above...
+	ish    bool          // Is the line Manhattan'ish, a.k.a. diagonal
+	Points []image.Point `json:"points,omitempty" yaml:"points"`
 }
 
 func NewManhattanLine(x0, y0, x1, y1 int) ManhattanLine {
@@ -28,22 +26,22 @@ func NewManhattanLine(x0, y0, x1, y1 int) ManhattanLine {
 		xs = []int{x0}
 		ys = []int{y0}
 		ish = false
+	} else if x0 == x1 && y0 != y1 { // Vertical
+		ys = interpolate(y0, y1)
+		xs = fill(x0, len(ys))
+		ish = false
+	} else if x0 != x1 && y0 == y1 { // Horizontal
+		xs = interpolate(x0, x1)
+		ys = fill(y0, len(xs))
+		ish = false
 	} else if math.Abs(float64(y1-y0)/float64(x1-x0)) == 1 { // Diagonal
 		xs = interpolate(x0, x1)
 		ys = interpolate(y0, y1)
 		ish = true
-	} else if y0 != y1 { // Vertical
-		ys = interpolate(y0, y1)
-		xs = fill(x0, len(ys))
-		ish = false
-	} else if x0 != x1 { // Horizontal
-		xs = interpolate(x0, x1)
-		ys = fill(y0, len(xs))
-		ish = false
 	}
 
 	// Now get all the points
-	ps := make([]image.Point, len(xs))
+	ps := make([]image.Point, len(xs), len(xs))
 	for i := range ps {
 		ps[i] = image.Point{
 			X: xs[i],
@@ -51,10 +49,8 @@ func NewManhattanLine(x0, y0, x1, y1 int) ManhattanLine {
 		}
 	}
 	return ManhattanLine{
-		ish:     ish,
-		Points:  ps,
-		XValues: xs,
-		YValues: ys,
+		ish:    ish,
+		Points: ps,
 	}
 }
 
@@ -179,6 +175,7 @@ func interpolate(min, max int) []int {
 	if min == max {
 		return []int{min}
 	}
+	// We need to preserve order, but loop in order
 	flip := false
 	var sta, sto int
 	if min > max {
@@ -189,14 +186,21 @@ func interpolate(min, max int) []int {
 		sta = min
 		sto = max
 	}
-	axis := make([]int, sto-sta+1)
-	for i := range axis {
-		axis[i] = sta + i
+	rng := make([]int, sto-sta+1, sto-sta+1)
+	for i := range rng {
+		rng[i] = sta + i
 	}
-	if flip {
-		sort.Sort(sort.Reverse(sort.IntSlice(axis)))
+	if flip { // Flip it and reverse it
+		sort.Sort(sort.Reverse(sort.IntSlice(rng)))
 	}
-	return axis
+	return rng
+}
+func fill(value int, length int) []int {
+	vs := make([]int, length)
+	for i := range vs {
+		vs[i] = value
+	}
+	return vs
 }
 
 func readAndParseInputFile(fname string) ([]ManhattanLine, error) {
@@ -213,29 +217,23 @@ func parseInput(input io.Reader) ([]ManhattanLine, error) {
 
 	lineScanner.Split(bufio.ScanLines)
 	var lines []ManhattanLine
+	var x0, y0, x1, y1 int
 	for lineScanner.Scan() {
 		inputLine := lineScanner.Text()
-		var x0, y0, x1, y1 int
 		// Parse the ManhattanLine into points and a ManhattanLine
 		_, err := fmt.Fscanf(strings.NewReader(inputLine), "%d,%d -> %d,%d", &x0, &y0, &x1, &y1)
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("Error during scanning of inputLine '%s'", inputLine))
 		}
 		// We know that the lines (for now) are horizontal or vertical
-		if isManhattanish(x0, y0, x1, y1) {
-			lines = append(
-				lines, NewManhattanLine(x0, y0, x1, y1),
-			)
-		}
+		lines = append(lines, NewManhattanLine(x0, y0, x1, y1))
 	}
+
 	return lines, nil
 }
 
 func isManhattanish(x0, y0, x1, y1 int) bool {
 	if x0 == x1 && y0 == y1 {
-		return true
-	}
-	if math.Abs(float64(y1-y0)/float64(x1-x0)) == 1 { // Diagonal
 		return true
 	}
 	if x0 == x1 && y0 != y1 { // Vertical
@@ -244,16 +242,12 @@ func isManhattanish(x0, y0, x1, y1 int) bool {
 	if x0 != x1 && y0 == y1 { // Horizontal
 		return true
 	}
+	if math.Abs(float64(y1-y0)/float64(x1-x0)) == 1 { // Diagonal
+		return true
+	}
 	return false
 }
 
-func fill(value int, length int) []int {
-	vs := make([]int, length)
-	for i := range vs {
-		vs[i] = value
-	}
-	return vs
-}
 func readerFromFileContents(fname string) (io.Reader, error) {
 	contents, err := ioutil.ReadFile(fname)
 	if err != nil {
