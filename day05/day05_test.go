@@ -19,17 +19,16 @@ func BenchmarkDrawLines(b *testing.B) {
 	benchmarks := []struct {
 		name   string
 		lines  []ManhattanLine
-		canvas [][]int
-		f      func([]ManhattanLine, [][]int) ([][]int, error)
+		canvas *Canvas
+		f      func()
 	}{
-		{name: "Manhattan", lines: manhattanLines, canvas: createCanvas(1000, 1000), f: drawManhattanLines},
-		{name: "Manhattanish", lines: manhattanLines, canvas: createCanvas(1000, 1000), f: drawManhattanishLines},
+		{name: "Manhattan", lines: manhattanLines, canvas: newCanvas(1000)},
 	}
 	for _, bm := range benchmarks {
 		b.Run(
 			bm.name, func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
-					_, _ = bm.f(bm.lines, bm.canvas)
+					_ = bm.canvas.drawManhattanishLines(bm.lines)
 				}
 			},
 		)
@@ -186,7 +185,7 @@ func Test_drawLine(t *testing.T) {
 
 	type args struct {
 		l      ManhattanLine
-		canvas [][]int
+		canvas *Canvas
 	}
 	tests := []struct {
 		name    string
@@ -197,7 +196,7 @@ func Test_drawLine(t *testing.T) {
 		{
 			name: testing.CoverMode(), args: args{
 				l:      NewManhattanLine(0, 1, 0, 3),
-				canvas: createCanvas(5, 5),
+				canvas: newCanvas(5),
 			},
 			want: [][]int{
 				{0, 0, 0, 0, 0},
@@ -210,12 +209,14 @@ func Test_drawLine(t *testing.T) {
 		}, {
 			name: testing.CoverMode(), args: args{
 				l: NewManhattanLine(0, 1, 3, 1),
-				canvas: [][]int{
-					{0, 0, 0, 0, 0},
-					{1, 0, 0, 0, 0},
-					{1, 0, 0, 0, 0},
-					{1, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
+				canvas: &Canvas{
+					[][]int{
+						{0, 0, 0, 0, 0},
+						{1, 0, 0, 0, 0},
+						{1, 0, 0, 0, 0},
+						{1, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+					},
 				},
 			},
 			want: [][]int{
@@ -229,12 +230,14 @@ func Test_drawLine(t *testing.T) {
 		}, {
 			name: testing.CoverMode(), args: args{
 				l: NewManhattanLine(4, 0, 4, 4),
-				canvas: [][]int{
-					{0, 0, 0, 0, 0},
-					{2, 1, 1, 1, 0},
-					{1, 0, 0, 0, 0},
-					{1, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
+				canvas: &Canvas{
+					[][]int{
+						{0, 0, 0, 0, 0},
+						{2, 1, 1, 1, 0},
+						{1, 0, 0, 0, 0},
+						{1, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+					},
 				},
 			},
 			want: [][]int{
@@ -248,12 +251,14 @@ func Test_drawLine(t *testing.T) {
 		}, {
 			name: testing.CoverMode(), args: args{
 				l: NewManhattanLine(0, 0, 0, 4),
-				canvas: [][]int{
-					{0, 0, 0, 0, 1},
-					{2, 1, 1, 1, 1},
-					{1, 0, 0, 0, 1},
-					{1, 0, 0, 0, 1},
-					{0, 0, 0, 0, 1},
+				canvas: &Canvas{
+					[][]int{
+						{0, 0, 0, 0, 1},
+						{2, 1, 1, 1, 1},
+						{1, 0, 0, 0, 1},
+						{1, 0, 0, 0, 1},
+						{0, 0, 0, 0, 1},
+					},
 				},
 			},
 			want: [][]int{
@@ -268,12 +273,14 @@ func Test_drawLine(t *testing.T) {
 			name: testing.CoverMode(),
 			args: args{
 				l: NewManhattanLine(0, 0, 4, 4),
-				canvas: [][]int{
-					{0, 1, 1, 1, 0},
-					{0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
+				canvas: &Canvas{
+					[][]int{
+						{0, 1, 1, 1, 0},
+						{0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+					},
 				},
 			},
 			want: [][]int{
@@ -288,12 +295,14 @@ func Test_drawLine(t *testing.T) {
 			name: testing.CoverMode(),
 			args: args{
 				l: NewManhattanLine(4, 0, 0, 4),
-				canvas: [][]int{
-					{0, 1, 1, 1, 0},
-					{0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0},
+				canvas: &Canvas{
+					[][]int{
+						{0, 1, 1, 1, 0},
+						{0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0},
+					},
 				},
 			},
 			want: [][]int{
@@ -309,7 +318,9 @@ func Test_drawLine(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := drawLine(tt.args.l, tt.args.canvas)
+				cv := tt.args.canvas
+				err := cv.drawLine(tt.args.l)
+				got := cv._c
 				if (err != nil) != tt.wantErr {
 					t.Errorf("drawLine() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -334,7 +345,7 @@ func Test_drawLine(t *testing.T) {
 
 func Test_countIntersections(t *testing.T) {
 	type args struct {
-		canvas [][]int
+		canvas *Canvas
 	}
 	tests := []struct {
 		name string
@@ -344,46 +355,52 @@ func Test_countIntersections(t *testing.T) {
 		{
 			name: testing.CoverMode(),
 			args: args{
-				canvas: [][]int{
-					{0, 2, 1, 1, 0},
-					{0, 1, 0, 0, 0},
-					{0, 1, 0, 0, 0},
-					{0, 1, 0, 0, 0},
-					{1, 1, 1, 1, 1},
+				canvas: &Canvas{
+					[][]int{
+						{0, 2, 1, 1, 0},
+						{0, 1, 0, 0, 0},
+						{0, 1, 0, 0, 0},
+						{0, 1, 0, 0, 0},
+						{1, 1, 1, 1, 1},
+					},
 				},
 			},
 			want: 1,
 		}, {
 			name: testing.CoverMode(),
 			args: args{
-				canvas: [][]int{
-					{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-					{0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
-					{0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
-					{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-					{0, 1, 1, 2, 1, 1, 1, 2, 1, 1},
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{2, 2, 2, 1, 1, 1, 0, 0, 0, 0},
+				canvas: &Canvas{
+					[][]int{
+						{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+						{0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
+						{0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
+						{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+						{0, 1, 1, 2, 1, 1, 1, 2, 1, 1},
+						{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						{2, 2, 2, 1, 1, 1, 0, 0, 0, 0},
+					},
 				},
 			},
 			want: 5,
 		}, {
 			name: testing.CoverMode(),
 			args: args{
-				canvas: [][]int{
-					{1, 0, 1, 0, 0, 0, 0, 1, 1, 0},
-					{0, 1, 1, 1, 0, 0, 0, 2, 0, 0},
-					{0, 0, 2, 0, 1, 0, 1, 1, 1, 0},
-					{0, 0, 0, 1, 0, 2, 0, 2, 0, 0},
-					{0, 1, 1, 2, 3, 1, 3, 2, 1, 1},
-					{0, 0, 0, 1, 0, 2, 0, 0, 0, 0},
-					{0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-					{0, 1, 0, 0, 0, 0, 0, 1, 0, 0},
-					{1, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-					{2, 2, 2, 1, 1, 1, 0, 0, 0, 0},
+				canvas: &Canvas{
+					_c: [][]int{
+						{1, 0, 1, 0, 0, 0, 0, 1, 1, 0},
+						{0, 1, 1, 1, 0, 0, 0, 2, 0, 0},
+						{0, 0, 2, 0, 1, 0, 1, 1, 1, 0},
+						{0, 0, 0, 1, 0, 2, 0, 2, 0, 0},
+						{0, 1, 1, 2, 3, 1, 3, 2, 1, 1},
+						{0, 0, 0, 1, 0, 2, 0, 0, 0, 0},
+						{0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
+						{0, 1, 0, 0, 0, 0, 0, 1, 0, 0},
+						{1, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+						{2, 2, 2, 1, 1, 1, 0, 0, 0, 0},
+					},
 				},
 			},
 			want: 12,
@@ -392,7 +409,8 @@ func Test_countIntersections(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				if got := countIntersections(tt.args.canvas); got != tt.want {
+				cv := tt.args.canvas
+				if got := cv.countIntersections(); got != tt.want {
 					t.Errorf("countIntersections() = %v, want %v", got, tt.want)
 				}
 			},
@@ -405,7 +423,6 @@ func Test_parseInput(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can't open the bleeping test file: %s", err.Error())
 	}
-
 	type args struct {
 		input io.Reader
 	}
@@ -556,76 +573,10 @@ func TestNewManhattanLine(t *testing.T) {
 	}
 }
 
-func Test_drawManhattanishLines(t *testing.T) {
-	type args struct {
-		manhattanLines []ManhattanLine
-		canvas         [][]int
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    [][]int
-		wantErr bool
-	}{
-		{
-			name: testing.CoverMode(),
-			args: args{
-				manhattanLines: []ManhattanLine{
-					NewManhattanLine(0, 9, 5, 9),
-					NewManhattanLine(8, 0, 0, 8),
-					NewManhattanLine(9, 4, 3, 4),
-					NewManhattanLine(2, 2, 2, 1),
-					NewManhattanLine(7, 0, 7, 4),
-					NewManhattanLine(6, 4, 2, 0),
-					NewManhattanLine(0, 9, 2, 9),
-					NewManhattanLine(3, 4, 1, 4),
-					NewManhattanLine(0, 0, 8, 8),
-					NewManhattanLine(5, 5, 8, 2),
-				},
-				canvas: createCanvas(10, 10),
-			},
-			want: [][]int{
-				{1, 0, 1, 0, 0, 0, 0, 1, 1, 0},
-				{0, 1, 1, 1, 0, 0, 0, 2, 0, 0},
-				{0, 0, 2, 0, 1, 0, 1, 1, 1, 0},
-				{0, 0, 0, 1, 0, 2, 0, 2, 0, 0},
-				{0, 1, 1, 2, 3, 1, 3, 2, 1, 1},
-				{0, 0, 0, 1, 0, 2, 0, 0, 0, 0},
-				{0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-				{0, 1, 0, 0, 0, 0, 0, 1, 0, 0},
-				{1, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-				{2, 2, 2, 1, 1, 1, 0, 0, 0, 0},
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(
-			tt.name, func(t *testing.T) {
-				got, err := drawManhattanishLines(tt.args.manhattanLines, tt.args.canvas)
-				if (err != nil) != tt.wantErr {
-					t.Errorf("drawManhattanishLines() error = %v, wantErr %v", err, tt.wantErr)
-					return
-				}
-				if !reflect.DeepEqual(got, tt.want) {
-					bldGot := strings.Builder{}
-					for _, l := range got {
-						bldGot.WriteString(fmt.Sprintln(l))
-					}
-					bldWant := strings.Builder{}
-					for _, l := range tt.want {
-						bldWant.WriteString(fmt.Sprintln(l))
-					}
-					t.Errorf("drawManhattanishLines()\ngot:\n%v\nwant\n%v\n", bldGot.String(), bldWant.String())
-				}
-			},
-		)
-	}
-}
 func Test_drawManhattanLines(t *testing.T) {
 	type args struct {
 		manhattanLines []ManhattanLine
-		canvas         [][]int
+		canvas         *Canvas
 	}
 	tests := []struct {
 		name    string
@@ -648,7 +599,7 @@ func Test_drawManhattanLines(t *testing.T) {
 					NewManhattanLine(0, 0, 8, 8),
 					NewManhattanLine(5, 5, 8, 2),
 				},
-				canvas: createCanvas(10, 10),
+				canvas: newCanvas(10),
 			},
 			want: [][]int{
 				{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
@@ -668,7 +619,9 @@ func Test_drawManhattanLines(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := drawManhattanLines(tt.args.manhattanLines, tt.args.canvas)
+				cv := tt.args.canvas
+				err := cv.drawManhattanLines(tt.args.manhattanLines)
+				got := cv._c
 				if (err != nil) != tt.wantErr {
 					t.Errorf("drawManhattanLines() error = %v, wantErr %v", err, tt.wantErr)
 					return

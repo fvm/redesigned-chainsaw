@@ -54,6 +54,63 @@ func NewManhattanLine(x0, y0, x1, y1 int) ManhattanLine {
 	}
 }
 
+type Canvas struct {
+	_c [][]int
+}
+
+func (canvas *Canvas) drawManhattanLines(manhattanLines []ManhattanLine) error {
+	var err error
+	for _, l := range manhattanLines {
+		if l.ish {
+			continue
+		}
+		// drawLine each line on the _c
+		err = canvas.drawLine(l)
+		if err != nil {
+			return errors.Wrap(err, "Error while drawing manhattanLines on _c")
+		}
+	}
+	return nil
+}
+
+func (canvas *Canvas) drawLine(l ManhattanLine) error {
+	for _, p := range l.Points {
+		if p.X > len(canvas._c) {
+			return errors.Errorf("Pixel X value %d out of _c bounds", p.X)
+		}
+		if p.Y > len(canvas._c[p.X]) {
+			return errors.Errorf("Pixel Y value %d out of _c bounds", p.Y)
+		}
+		canvas._c[p.Y][p.X]++
+	}
+
+	return nil
+}
+
+func (canvas *Canvas) countIntersections() int {
+	count := 0
+	for x := range canvas._c {
+		for y := range canvas._c[x] {
+			if canvas._c[x][y] > 1 {
+				count++
+			}
+		}
+	}
+	return count
+}
+
+func (canvas *Canvas) drawManhattanishLines(manhattanLines []ManhattanLine) error {
+	var err error
+	for _, l := range manhattanLines {
+		// drawLine each line on the _c
+		err = canvas.drawLine(l)
+		if err != nil {
+			return errors.Wrap(err, "Error while drawing manhattanLines on _c")
+		}
+	}
+	return nil
+}
+
 func Solve() error {
 
 	manhattanLines, err := readAndParseInputFile("day05/input")
@@ -90,85 +147,34 @@ func Solve() error {
 
 func solvePartOne(manhattanLines []ManhattanLine) (int, error) {
 	var err error
-	canvas := createCanvas(1000, 1000)
-	canvas, err = drawManhattanLines(manhattanLines, canvas)
+	canvas := newCanvas(1000)
+	err = canvas.drawManhattanLines(manhattanLines)
 	if err != nil {
 		return 0, err
 	}
-	numIntersections := countIntersections(canvas)
+	numIntersections := canvas.countIntersections()
 	return numIntersections, nil
 }
 
 func solvePartTwo(manhattanLines []ManhattanLine) (int, error) {
 	var err error
-	canvas := createCanvas(1000, 1000)
-	canvas, err = drawManhattanishLines(manhattanLines, canvas)
+	canvas := newCanvas(1000)
+	err = canvas.drawManhattanishLines(manhattanLines)
 	if err != nil {
 		return 0, err
 	}
-	numIntersections := countIntersections(canvas)
+	numIntersections := canvas.countIntersections()
 	return numIntersections, nil
 }
 
-func drawManhattanishLines(manhattanLines []ManhattanLine, canvas [][]int) ([][]int, error) {
-	var err error
-	for _, l := range manhattanLines {
-		// drawLine each line on the canvas
-		canvas, err = drawLine(l, canvas)
-		if err != nil {
-			return nil, errors.Wrap(err, "Error while drawing manhattanLines on canvas")
-		}
-	}
-	return canvas, nil
-}
-
-func drawManhattanLines(manhattanLines []ManhattanLine, canvas [][]int) ([][]int, error) {
-	var err error
-	for _, l := range manhattanLines {
-		if l.ish {
-			continue
-		}
-		// drawLine each line on the canvas
-		canvas, err = drawLine(l, canvas)
-		if err != nil {
-			return nil, errors.Wrap(err, "Error while drawing manhattanLines on canvas")
-		}
-	}
-	return canvas, nil
-}
-
-func drawLine(l ManhattanLine, canvas [][]int) ([][]int, error) {
-	for _, p := range l.Points {
-		if p.X > len(canvas) {
-			return nil, errors.Errorf("Pixel X value %d out of canvas bounds", p.X)
-		}
-		if p.Y > len(canvas[p.X]) {
-			return nil, errors.Errorf("Pixel Y value %d out of canvas bounds", p.Y)
-		}
-		canvas[p.Y][p.X]++
-	}
-	return canvas, nil
-}
-
-func countIntersections(canvas [][]int) int {
-	count := 0
-	for x := range canvas {
-		for y := range canvas[x] {
-			if canvas[x][y] > 1 {
-				count++
-			}
-		}
-	}
-	return count
-}
-
-func createCanvas(n, m int) [][]int {
-	canvas := make([][]int, n)
-	rows := make([]int, n*m)
+func newCanvas(n int) *Canvas {
+	_c := make([][]int, n)
+	rows := make([]int, n*n)
 	for i := 0; i < n; i++ {
-		canvas[i] = rows[i*m : (i+1)*m]
+		_c[i] = rows[i*n : (i+1)*n]
 	}
-	return canvas
+
+	return &Canvas{_c: _c}
 }
 
 func interpolate(min, max int) []int {
