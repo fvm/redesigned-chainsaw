@@ -19,6 +19,40 @@ type ManhattanLine struct {
 	Points []image.Point `json:"points,omitempty" yaml:"points"`
 }
 
+func Solve() error {
+
+	manhattanLines, err := readAndParseInputFile("day05/input")
+	if err != nil {
+		return err
+	}
+
+	solutionPartOne, err := solvePartOne(manhattanLines)
+	if err != nil {
+		return err
+	}
+
+	zap.L().Info(
+		"Solution",
+		zap.Int("Day", 5),
+		zap.Int("Part", 1),
+		zap.Int("Solution (increments)", solutionPartOne),
+	)
+
+	solutionPartTwo, err := solvePartTwo(manhattanLines)
+	if err != nil {
+		return err
+	}
+
+	zap.L().Info(
+		"Solution",
+		zap.Int("Day", 5),
+		zap.Int("Part", 2),
+		zap.Int("Solution (increments)", solutionPartTwo),
+	)
+
+	return nil
+}
+
 func NewManhattanLine(x0, y0, x1, y1 int) ManhattanLine {
 	var xs, ys []int
 	var ish bool
@@ -108,40 +142,6 @@ func (canvas *Canvas) drawManhattanishLines(manhattanLines []ManhattanLine) erro
 			return errors.Wrap(err, "Error while drawing manhattanLines on _c")
 		}
 	}
-	return nil
-}
-
-func Solve() error {
-
-	manhattanLines, err := readAndParseInputFile("day05/input")
-	if err != nil {
-		return err
-	}
-
-	solutionPartOne, err := solvePartOne(manhattanLines)
-	if err != nil {
-		return err
-	}
-
-	zap.L().Info(
-		"Solution",
-		zap.Int("Day", 5),
-		zap.Int("Part", 1),
-		zap.Int("Solution (increments)", solutionPartOne),
-	)
-
-	solutionPartTwo, err := solvePartTwo(manhattanLines)
-	if err != nil {
-		return err
-	}
-
-	zap.L().Info(
-		"Solution",
-		zap.Int("Day", 5),
-		zap.Int("Part", 2),
-		zap.Int("Solution (increments)", solutionPartTwo),
-	)
-
 	return nil
 }
 
