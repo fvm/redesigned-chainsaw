@@ -41,3 +41,10 @@ Also, realising that more boards can win per roun/d.
 
 Probably could have tested for validity of the lines better. Reused functions from the get-go. 2D-Slice indices are
 tricky. Test your assumptions on the meaning of 'diagonal'
+
+## Day 06
+
+Very much tempted to do it with a `container.ring` or `container.list`, but just went with the slice and shift and push
+its contents around. No time to do it in the morning, but pretty much done in a jiffy in the evening. After reading the
+description, it quickly became clear it would explode and modeling the cycle would be the way to go. It's basically a
+ring with a little run up tail, like a lowercase sigma.
