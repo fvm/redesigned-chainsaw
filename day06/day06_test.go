@@ -4,24 +4,20 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
-	"time"
 )
 
 func BenchmarkAllDay06(b *testing.B) {
-	t1 := time.Now()
-	t2 := t1.AddDate(20, 0, 0)
-	days := t2.Sub(t1).Hours() * 24
 	population, err := readAndParseInputFile("input")
 	if err != nil {
 		b.Errorf("Bloop, bloop, fishy bench fuckup %s", err)
 	}
 	type args struct {
 		population Population
-		days       int
+		days       uint64
 	}
 	benchmarks := []struct {
 		name string
-		f    func(population Population, days int) int
+		f    func(population Population, days uint64) uint64
 		args args
 	}{
 		{
@@ -40,14 +36,6 @@ func BenchmarkAllDay06(b *testing.B) {
 				days:       256,
 			},
 		},
-		{
-			name: fmt.Sprintf("%d days", int(days)),
-			f:    solvePartTwo,
-			args: args{
-				population: population,
-				days:       int(days),
-			},
-		},
 	}
 	for _, bm := range benchmarks {
 		b.Run(
@@ -57,6 +45,78 @@ func BenchmarkAllDay06(b *testing.B) {
 				}
 			},
 		)
+	}
+}
+func BenchmarkAllDayForNDays(b *testing.B) {
+	population, err := readAndParseInputFile("input")
+	if err != nil {
+		b.Errorf("Bloop, bloop, fishy bench fuckup %s", err)
+	}
+	type args struct {
+		population Population
+		days       uint64
+	}
+	benchmarks := []struct {
+		name string
+		f    func(population Population, days uint64) uint64
+		args args
+	}{
+		{
+			name: fmt.Sprintf("N=%d", 80),
+			f:    solvePartOne,
+			args: args{
+				population: population,
+				days:       80,
+			},
+		},
+		{
+			name: fmt.Sprintf("N=%d", 256),
+			f:    solvePartTwo,
+			args: args{
+				population: population,
+				days:       256,
+			},
+		},
+		{
+			name: fmt.Sprintf("N=%d", 951),
+			f:    solvePartTwo,
+			args: args{
+				population: population,
+				days:       951,
+			},
+		}, {
+			name: fmt.Sprintf("N=%d", 952),
+			f:    solvePartTwo,
+			args: args{
+				population: population,
+				days:       952,
+			},
+		}, {
+			name: fmt.Sprintf("N=%d", 20*365),
+			f:    solvePartTwo,
+			args: args{
+				population: population,
+				days:       20 * 365,
+			},
+		}, {
+			name: fmt.Sprintf("N=%d", 100*365),
+			f:    solvePartTwo,
+			args: args{
+				population: population,
+				days:       100 * 365,
+			},
+		},
+	}
+	for _, bm := range benchmarks {
+		p := uint64(0)
+		b.Run(
+			bm.name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					p = bm.f(bm.args.population, bm.args.days)
+				}
+			},
+		)
+		b.Logf("Population size: %d", p)
 	}
 }
 
@@ -69,12 +129,12 @@ func TestPopulation_Tick(t *testing.T) {
 		{
 			name: testing.CoverMode(),
 			startingPopulation: &Population{
-				adult:    []int{2, 3, 2, 0, 1},
-				maturing: []int{1, 2},
+				adult:    []uint64{2, 3, 2, 0, 1},
+				maturing: []uint64{1, 2},
 			},
 			targetPopulation: &Population{
-				adult:    []int{3, 2, 0, 1, 3},
-				maturing: []int{2, 2},
+				adult:    []uint64{3, 2, 0, 1, 3},
+				maturing: []uint64{2, 2},
 			},
 		},
 	}
@@ -99,7 +159,7 @@ func TestPopulation_Tick(t *testing.T) {
 
 func TestPopulation_initFromState(t *testing.T) {
 	type args struct {
-		states []int
+		states []uint64
 	}
 	tests := []struct {
 		name             string
@@ -112,11 +172,11 @@ func TestPopulation_initFromState(t *testing.T) {
 			name:       testing.CoverMode(),
 			population: NewPopulation(7, 2),
 			args: args{
-				states: []int{1, 2, 1, 6, 0},
+				states: []uint64{1, 2, 1, 6, 0},
 			},
 			targetPopulation: Population{
-				adult:    []int{1, 2, 1, 0, 0, 0, 1},
-				maturing: []int{0, 0},
+				adult:    []uint64{1, 2, 1, 0, 0, 0, 1},
+				maturing: []uint64{0, 0},
 			},
 			wantErr: false,
 		},
@@ -146,19 +206,19 @@ func TestPopulation_initFromState(t *testing.T) {
 func Test_solvePartOne(t *testing.T) {
 	type args struct {
 		population Population
-		days       int
+		days       uint64
 	}
 	tests := []struct {
 		name string
 		args args
-		want int
+		want uint64
 	}{
 		{
 			name: testing.CoverMode(),
 			args: args{
 				population: Population{
-					adult:    []int{0, 1, 1, 2, 1, 0, 0},
-					maturing: []int{0, 0},
+					adult:    []uint64{0, 1, 1, 2, 1, 0, 0},
+					maturing: []uint64{0, 0},
 				},
 				days: 80,
 			}, want: 5934,

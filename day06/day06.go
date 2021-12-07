@@ -13,8 +13,8 @@ import (
 
 // Population represent a population of laternfish
 type Population struct {
-	adult    []int
-	maturing []int
+	adult    []uint64
+	maturing []uint64
 }
 
 func Solve() error {
@@ -28,9 +28,9 @@ func Solve() error {
 
 	zap.L().Info(
 		"Solution",
-		zap.Int("Day", 6),
-		zap.Int("Part", 1),
-		zap.Int("Solution (increments)", solutionPartOne),
+		zap.Uint64("Day", 6),
+		zap.Uint64("Part", 1),
+		zap.Uint64("Solution (increments)", solutionPartOne),
 	)
 
 	solutionPartTwo := solvePartTwo(population, 256)
@@ -40,30 +40,30 @@ func Solve() error {
 
 	zap.L().Info(
 		"Solution",
-		zap.Int("Day", 6),
-		zap.Int("Part", 2),
-		zap.Int("Solution (increments)", solutionPartTwo),
+		zap.Uint64("Day", 6),
+		zap.Uint64("Part", 2),
+		zap.Uint64("Solution (increments)", solutionPartTwo),
 	)
 
 	return nil
 }
 
-func solvePartTwo(population Population, days int) int {
-	for i := 0; i < days; i++ {
+func solvePartTwo(population Population, days uint64) uint64 {
+	for i := uint64(0); i < days; i++ {
 		population.Tick()
 	}
 	return population.census()
 }
 
-func solvePartOne(population Population, days int) int {
-	for i := 0; i < days; i++ {
+func solvePartOne(population Population, days uint64) uint64 {
+	for i := uint64(0); i < days; i++ {
 		population.Tick()
 	}
 	return population.census()
 }
 
-func (p Population) census() int {
-	populationCount := 0
+func (p Population) census() uint64 {
+	populationCount := uint64(0)
 	for _, n := range p.adult {
 		populationCount += n
 	}
@@ -73,17 +73,17 @@ func (p Population) census() int {
 	return populationCount
 }
 
-func NewPopulation(spawnTime int, maturationTime int) *Population {
+func NewPopulation(spawnTime uint64, maturationTime uint64) *Population {
 	return &Population{
-		adult:    make([]int, spawnTime, spawnTime),
-		maturing: make([]int, maturationTime, maturationTime),
+		adult:    make([]uint64, spawnTime, spawnTime),
+		maturing: make([]uint64, maturationTime, maturationTime),
 	}
 }
 
-func (p *Population) initFromState(states []int) error {
-	// 	Given a list of integers representing the current countdown states of the population, return a Population
+func (p *Population) initFromState(states []uint64) error {
+	// 	Given a list of uint64egers representing the current countdown states of the population, return a Population
 	for _, v := range states {
-		if v > len(p.adult) {
+		if v > uint64(len(p.adult)) {
 			// We're out of bounds
 			return errors.New("Mass production error! Boop, beep!")
 		}
@@ -116,14 +116,14 @@ func parseInput(input io.Reader) (Population, error) {
 	if err != nil {
 		return *p, err
 	}
-	states := make([]int, len(record))
+	states := make([]uint64, len(record))
 	// We know it's just one line
 	for i, f := range record {
 		val, err := strconv.Atoi(f)
 		if err != nil {
 			return *p, errors.Wrap(err, "Beep! Boop! Your string was very fishy")
 		}
-		states[i] = val
+		states[i] = uint64(val)
 	}
 	err = p.initFromState(states)
 	if err != nil {
