@@ -92,6 +92,13 @@ func BenchmarkAllDayForNDays(b *testing.B) {
 				days:       952,
 			},
 		}, {
+			name: fmt.Sprintf("N=%d", 6*365),
+			f:    solvePartTwo,
+			args: args{
+				population: population,
+				days:       6 * 365,
+			},
+		}, {
 			name: fmt.Sprintf("N=%d", 20*365),
 			f:    solvePartTwo,
 			args: args{
