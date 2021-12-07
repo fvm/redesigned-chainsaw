@@ -1,113 +1,57 @@
 package day07
 
 import (
-	"encoding/csv"
 	"io"
-	"math"
-	"strconv"
+	"io/ioutil"
+	"strings"
 
-	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
-type PuzzleInput struct {
-	positions []int
-}
+func Solve() error {
 
-type PuzzleOutput struct {
-	fuel     int
-	position int
-}
-
-func getRange(s []int) (int, int) {
-	currentMaximum := math.MinInt
-	currentMinimum := math.MaxInt
-	for _, v := range s {
-		if v <= currentMinimum {
-			currentMinimum = v
-		}
-		if v >= currentMaximum {
-			currentMaximum = v
-		}
-	}
-	return currentMinimum, currentMaximum
-}
-
-func solvePartOne(input PuzzleInput) (int, error) {
-	// It would be smart if we did a gradient descent, but let's just brute force it
-	type PuzzleOutput struct {
-		fuel     int
-		position int
-	}
-	puzzleOutput := PuzzleOutput{
-		fuel:     math.MaxInt,
-		position: math.MaxInt,
-	}
-	lo, hi := getRange(input.positions)
-	for i := lo; i <= hi; i++ {
-		f, err := input.linearGoodNessOfFit(i)
-		if err != nil {
-			return 0, err
-		}
-		if f <= puzzleOutput.fuel {
-			puzzleOutput.position = i
-			puzzleOutput.fuel = f
-		}
-
+	puzzleInput, err := readAndParseInputFile("day07/input")
+	if err != nil {
+		return err
 	}
 
-	return puzzleOutput.fuel, nil
-}
-
-func solvePartTwo(input PuzzleInput) (int, error) {
-	fuel := math.MaxInt
-	lo, hi := getRange(input.positions)
-	for i := lo; i <= hi; i++ {
-		f, err := input.cumulativeGoodnessOfFit(i)
-		if err != nil {
-			return 0, err
-		}
-		if f <= fuel {
-			fuel = f
-		}
+	solutionPartOne, err := solvePartOne(puzzleInput)
+	if err != nil {
+		return err
 	}
-	return fuel, nil
-}
 
-func (p PuzzleInput) linearGoodNessOfFit(y int) (int, error) {
-	sumOfDistances := 0
-	for _, position := range p.positions {
-		sumOfDistances += int(math.Abs(float64(position - y)))
+	zap.L().Info(
+		"Solution",
+		zap.Int("Day", 7),
+		zap.Int("Part", 1),
+		zap.Int("Solution (increments)", solutionPartOne),
+	)
+
+	solutionPartTwo, err := solvePartTwo(puzzleInput)
+	if err != nil {
+		return err
 	}
-	return sumOfDistances, nil
+
+	zap.L().Info(
+		"Solution",
+		zap.Int("Day", 7),
+		zap.Int("Part", 2),
+		zap.Int("Solution (increments)", solutionPartTwo),
+	)
+
+	return nil
 }
-
-func (p PuzzleInput) cumulativeGoodnessOfFit(y int) (int, error) {
-	sumOfDistances := 0
-	for _, position := range p.positions {
-		baseDistance := int(math.Abs(float64(position - y)))
-		for i := 1; i <= baseDistance; i++ {
-			sumOfDistances += i
-		}
-	}
-	return sumOfDistances, nil
-}
-
-func parseInput(input io.Reader) (PuzzleInput, error) {
-	r := csv.NewReader(input)
-
-	record, err := r.Read()
+func readAndParseInputFile(fname string) (PuzzleInput, error) {
+	rc, err := readerFromFileContents(fname)
 	if err != nil {
 		return PuzzleInput{}, err
 	}
+	return parseInput(rc)
+}
+func readerFromFileContents(fname string) (io.Reader, error) {
+	contents, err := ioutil.ReadFile(fname)
+	if err != nil {
 
-	p := PuzzleInput{positions: make([]int, len(record))} // We know it's just one line
-	for i, f := range record {
-		val, err := strconv.Atoi(f)
-		if err != nil {
-			return p, errors.Wrap(err, "Beep! Boop! Your crabby string was very crappy")
-		}
-		p.positions[i] = val
 	}
-
-	return p, nil
+	return strings.NewReader(string(contents)), nil
 }
